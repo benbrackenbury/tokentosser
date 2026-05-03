@@ -31,8 +31,12 @@
 </script>
     </head>
     <body class="">
-        <section class="flex items-center justify-center min-h-screen">
-            <h1 class="text-6xl font-bold text-center">Token Tosser</h1>
+        <section class="">
+            <img
+                src="tokentosser.gif"
+                alt="token tosser"
+                class="w-screen h-screen"
+            />
         </section>
     </body>
 </html>

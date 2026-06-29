@@ -50,7 +50,11 @@ jobs:
       - name: Determine Pages base path
         id: pages
         run: |
-          if [ "${{ github.event.repository.name }}" = "${{ github.repository_owner }}.github.io" ]; then
+          if [ -f public/CNAME ]; then
+            CUSTOM_DOMAIN="$(tr -d '[:space:]' < public/CNAME)"
+            echo "base_path=./" >> "$GITHUB_OUTPUT"
+            echo "site_url=https://${CUSTOM_DOMAIN}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.repository.name }}" = "${{ github.repository_owner }}.github.io" ]; then
             echo "base_path=/" >> "$GITHUB_OUTPUT"
             echo "site_url=https://${{ github.repository_owner }}.github.io" >> "$GITHUB_OUTPUT"
           else
@@ -65,7 +69,9 @@ jobs:
         run: bash scripts/build-github-pages.sh
 
       - name: Verify build output
-        run: test -f dist/index.html
+        run: |
+          test -f dist/index.html
+          ! grep -q 'href="/tokentosser/build/' dist/index.html
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4

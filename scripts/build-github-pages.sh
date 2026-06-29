@@ -4,16 +4,33 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-BASE_PATH="${VITE_BASE_PATH:-/tokentosser/}"
 OUTPUT_DIR="${GITHUB_PAGES_OUTPUT_DIR:-dist}"
+BASE_PATH="${VITE_BASE_PATH:-}"
+PAGES_URL="${GITHUB_PAGES_URL:-}"
+ASSET_URL_PATH=""
+
+if [[ -f public/CNAME ]]; then
+    CUSTOM_DOMAIN="$(tr -d '[:space:]' < public/CNAME)"
+    PAGES_URL="${PAGES_URL:-https://${CUSTOM_DOMAIN}}"
+    BASE_PATH="${BASE_PATH:-./}"
+    ASSET_URL_PATH=""
+elif [[ -z "$BASE_PATH" ]]; then
+    BASE_PATH="/tokentosser/"
+fi
+
 BASE_PATH_TRIM="${BASE_PATH%/}"
 
-if [[ -z "$BASE_PATH_TRIM" || "$BASE_PATH_TRIM" == "/" ]]; then
-    PAGES_URL="${GITHUB_PAGES_URL:-https://${GITHUB_REPOSITORY_OWNER:-benbrackenbury}.github.io}"
+if [[ -z "$PAGES_URL" ]]; then
+    if [[ -z "$BASE_PATH_TRIM" || "$BASE_PATH_TRIM" == "." || "$BASE_PATH_TRIM" == "/" ]]; then
+        PAGES_URL="https://${GITHUB_REPOSITORY_OWNER:-benbrackenbury}.github.io"
+    else
+        PAGES_URL="https://${GITHUB_REPOSITORY_OWNER:-benbrackenbury}.github.io${BASE_PATH_TRIM}"
+        ASSET_URL_PATH="$BASE_PATH_TRIM"
+    fi
+fi
+
+if [[ "$BASE_PATH" == "./" || "$BASE_PATH" == "." ]]; then
     ASSET_URL_PATH=""
-else
-    PAGES_URL="${GITHUB_PAGES_URL:-https://${GITHUB_REPOSITORY_OWNER:-benbrackenbury}.github.io${BASE_PATH_TRIM}}"
-    ASSET_URL_PATH="$BASE_PATH_TRIM"
 fi
 
 if [[ ! -f .env ]]; then
@@ -49,7 +66,7 @@ php artisan tinker --execute 'file_put_contents(base_path("'"$OUTPUT_DIR"'/index
 
 sed -i "s|http://localhost|${PAGES_URL}|g" "$OUTPUT_DIR/index.html"
 
-for asset in favicon.ico robots.txt tokentosser.gif og-image.png; do
+for asset in favicon.ico robots.txt tokentosser.gif og-image.png CNAME; do
     if [[ -f "public/$asset" ]]; then
         cp "public/$asset" "$OUTPUT_DIR/$asset"
     fi

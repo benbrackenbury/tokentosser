@@ -4,6 +4,7 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
+        "build:pages": "bash scripts/build-github-pages.sh",
         "dev": "vite"
     },
     "devDependencies": {

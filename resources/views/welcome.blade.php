@@ -9,14 +9,21 @@
         <meta property="og:site_name" content="{{ config('app.name', 'Token Tosser') }}">
         <meta property="og:title" content="{{ config('app.name', 'Token Tosser') }} — 100% Vibe Coded">
         <meta property="og:description" content="Token Tosser — 100% vibe coded. No cap. Real Cursor stats (probably).">
+        @php
+            $ogImageUrl = (parse_url(config('app.url'), PHP_URL_SCHEME) ?: 'https')
+                .'://'
+                .(parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost')
+                .asset('og-image.png');
+        @endphp
+
         <meta property="og:url" content="{{ url('/') }}">
-        <meta property="og:image" content="{{ asset('og-image.png') }}">
+        <meta property="og:image" content="{{ $ogImageUrl }}">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="630">
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:title" content="{{ config('app.name', 'Token Tosser') }} — 100% Vibe Coded">
         <meta name="twitter:description" content="Token Tosser — 100% vibe coded. No cap. Real Cursor stats (probably).">
-        <meta name="twitter:image" content="{{ asset('og-image.png') }}">
+        <meta name="twitter:image" content="{{ $ogImageUrl }}">
 
         <title>{{ config('app.name', 'Token Tosser') }}</title>
 

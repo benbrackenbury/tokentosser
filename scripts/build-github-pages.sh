@@ -26,7 +26,7 @@ sed -i \
     -e 's/^CACHE_STORE=.*/CACHE_STORE=file/' \
     -e 's/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=sync/' \
     -e "s|^APP_URL=.*|APP_URL=${PAGES_URL}|" \
-    -e 's/^APP_NAME=.*/APP_NAME=Token Tosser/' \
+    -e 's/^APP_NAME=.*/APP_NAME="Token Tosser"/' \
     .env
 
 if grep -q '^ASSET_URL=' .env; then

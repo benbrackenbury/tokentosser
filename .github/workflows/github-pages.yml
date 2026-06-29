@@ -41,13 +41,16 @@ jobs:
         run: |
           if [ "${{ github.event.repository.name }}" = "${{ github.repository_owner }}.github.io" ]; then
             echo "base_path=/" >> "$GITHUB_OUTPUT"
+            echo "site_url=https://${{ github.repository_owner }}.github.io" >> "$GITHUB_OUTPUT"
           else
             echo "base_path=/${{ github.event.repository.name }}/" >> "$GITHUB_OUTPUT"
+            echo "site_url=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Build static site
         env:
           VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          GITHUB_PAGES_URL: ${{ steps.pages.outputs.site_url }}
         run: bash scripts/build-github-pages.sh
 
       - name: Verify build output

@@ -5,6 +5,19 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="Token Tosser — 100% vibe coded. No cap.">
 
+        <meta property="og:type" content="website">
+        <meta property="og:site_name" content="{{ config('app.name', 'Token Tosser') }}">
+        <meta property="og:title" content="{{ config('app.name', 'Token Tosser') }} — 100% Vibe Coded">
+        <meta property="og:description" content="Token Tosser — 100% vibe coded. No cap. Real Cursor stats (probably).">
+        <meta property="og:url" content="{{ url('/') }}">
+        <meta property="og:image" content="{{ asset('og-image.png') }}">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ config('app.name', 'Token Tosser') }} — 100% Vibe Coded">
+        <meta name="twitter:description" content="Token Tosser — 100% vibe coded. No cap. Real Cursor stats (probably).">
+        <meta name="twitter:image" content="{{ asset('og-image.png') }}">
+
         <title>{{ config('app.name', 'Token Tosser') }}</title>
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -93,11 +106,44 @@
                                         Vibing with Cursor since {{ \Illuminate\Support\Carbon::parse($cursor['joined_date'])->format('M Y') }} 🗓️
                                     </p>
                                 @endif
+
+                                @if (! empty($cursor['links']))
+                                    <div class="flex flex-wrap justify-center gap-2 pt-2 sm:justify-start">
+                                        @foreach ($cursor['links'] as $link)
+                                            @php
+                                                $host = parse_url($link, PHP_URL_HOST) ?? '';
+                                                $label = match (true) {
+                                                    str_contains($host, 'github') => 'GitHub',
+                                                    str_contains($host, 'twitter') || str_contains($host, 'x.com') => 'X',
+                                                    str_contains($host, 'linkedin') => 'LinkedIn',
+                                                    str_contains($host, 'youtube') => 'YouTube',
+                                                    default => $host !== '' ? $host : 'Link',
+                                                };
+                                                $emoji = match ($label) {
+                                                    'GitHub' => '🐙',
+                                                    'X' => '🐦',
+                                                    'LinkedIn' => '💼',
+                                                    'YouTube' => '▶️',
+                                                    default => '🔗',
+                                                };
+                                            @endphp
+                                            <a
+                                                href="{{ $link }}"
+                                                class="inline-flex items-center gap-1 rounded-lg border-2 border-indigo-400/60 bg-indigo-950/60 px-3 py-1 text-xs font-bold text-indigo-200 transition hover:scale-105 hover:border-pink-400 hover:text-pink-200"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                <span>{{ $emoji }}</span>
+                                                {{ $label }}
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
                         </div>
 
                         @if ($cursor)
-                            <dl class="mt-8 grid grid-cols-2 gap-3">
+                            <dl class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
                                 <div class="rounded-2xl border-2 border-pink-500/50 bg-pink-500/10 p-4 text-center shadow-[3px_3px_0_#ec4899]">
                                     <dt class="text-xs font-bold uppercase tracking-wider text-pink-300">🔥 Current streak</dt>
                                     <dd class="mt-1 text-3xl font-black text-white">{{ $cursor['stats']['current_streak'] ?? '—' }}</dd>
@@ -110,6 +156,14 @@
                                     <dt class="text-xs font-bold uppercase tracking-wider text-lime-300">🤖 Local agents</dt>
                                     <dd class="mt-1 text-3xl font-black text-white">{{ $cursor['stats']['agents_local'] ?? '—' }}</dd>
                                 </div>
+                                <div class="rounded-2xl border-2 border-purple-500/50 bg-purple-500/10 p-4 text-center shadow-[3px_3px_0_#a855f7]">
+                                    <dt class="text-xs font-bold uppercase tracking-wider text-purple-300">☁️ Cloud agents</dt>
+                                    <dd class="mt-1 text-3xl font-black text-white">{{ $cursor['stats']['agents_cloud'] ?? '—' }}</dd>
+                                </div>
+                                <div class="rounded-2xl border-2 border-orange-500/50 bg-orange-500/10 p-4 text-center shadow-[3px_3px_0_#f97316]">
+                                    <dt class="text-xs font-bold uppercase tracking-wider text-orange-300">⏱️ Longest session</dt>
+                                    <dd class="mt-1 text-2xl font-black text-white">{{ $cursor['stats']['longest_agent_duration'] ?? '—' }}</dd>
+                                </div>
                                 <div class="rounded-2xl border-2 border-yellow-500/50 bg-yellow-500/10 p-4 text-center shadow-[3px_3px_0_#eab308]">
                                     <dt class="text-xs font-bold uppercase tracking-wider text-yellow-300">📅 Most active</dt>
                                     <dd class="mt-1 text-xl font-black text-white">
@@ -120,6 +174,13 @@
                                     </dd>
                                 </div>
                             </dl>
+
+                            @if ($fetched_at ?? null)
+                                <p class="mt-4 text-center text-xs font-bold uppercase tracking-wider text-indigo-300/70">
+                                    Stats last updated {{ $fetched_at->timezone(config('app.timezone'))->diffForHumans() }}
+                                    <span class="text-indigo-400/50">({{ $fetched_at->timezone(config('app.timezone'))->format('M j, Y g:i A T') }})</span>
+                                </p>
+                            @endif
 
                             <a href="{{ $cursor['profile_url'] }}" class="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl border-4 border-indigo-300 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 px-6 py-4 text-lg font-black uppercase tracking-wide text-white shadow-[0_0_30px_rgba(129,140,248,0.6)] transition hover:scale-105 hover:shadow-[0_0_50px_rgba(236,72,153,0.8)]" target="_blank" rel="noopener noreferrer">
                                 👉 View Cursor Profile 👈

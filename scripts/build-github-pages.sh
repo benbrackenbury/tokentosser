@@ -49,7 +49,7 @@ php artisan tinker --execute 'file_put_contents(base_path("'"$OUTPUT_DIR"'/index
 
 sed -i "s|http://localhost|${PAGES_URL}|g" "$OUTPUT_DIR/index.html"
 
-for asset in favicon.ico robots.txt tokentosser.gif; do
+for asset in favicon.ico robots.txt tokentosser.gif og-image.png; do
     if [[ -f "public/$asset" ]]; then
         cp "public/$asset" "$OUTPUT_DIR/$asset"
     fi

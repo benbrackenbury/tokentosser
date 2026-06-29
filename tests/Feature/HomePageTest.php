@@ -10,7 +10,7 @@ beforeEach(function () {
 it('renders the homepage with profile data', function () {
     Http::fake([
         'cursor.com/@benbrackenbury' => Http::response(
-            '<html><body>\\"handle\\":\\"benbrackenbury\\",\\"displayName\\":\\"Ben Brackenbury\\",\\"avatarUrl\\":\\"https://example.com/avatar.png\\",\\"joinedDate\\":\\"2025-03-10T18:48:22.142Z\\",\\"links\\":[],\\"stats\\":{\\"mostActiveMonth\\":\\"June\\",\\"mostActiveDay\\":\\"Jun 29\\",\\"longestStreak\\":1,\\"currentStreak\\":1,\\"agentsLocal\\":7,\\"agentsCloud\\":0,\\"longestAgentSeconds\\":61}</body></html>',
+            '<html><body>\\"handle\\":\\"benbrackenbury\\",\\"displayName\\":\\"Ben Brackenbury\\",\\"avatarUrl\\":\\"https://example.com/avatar.png\\",\\"joinedDate\\":\\"2025-03-10T18:48:22.142Z\\",\\"links\\":[{\\"url\\":\\"github.com/benbrackenbury\\"},{\\"url\\":\\"https://x.com/benbrackenbury\\"}],\\"stats\\":{\\"mostActiveMonth\\":\\"June\\",\\"mostActiveDay\\":\\"Jun 29\\",\\"longestStreak\\":5,\\"currentStreak\\":3,\\"agentsLocal\\":7,\\"agentsCloud\\":12,\\"longestAgentSeconds\\":3661}</body></html>',
         ),
     ]);
 
@@ -22,6 +22,15 @@ it('renders the homepage with profile data', function () {
     $response->assertSee('VIBE CODED');
     $response->assertSee('Cursor');
     $response->assertSee('7');
+    $response->assertSee('12');
+    $response->assertSee('1h 1m');
+    $response->assertSee('GitHub');
+    $response->assertSee('X');
+    $response->assertSee('Stats last updated');
+    $response->assertSee('og:title', false);
+    $response->assertSee('og:image', false);
+    $response->assertSee('twitter:card', false);
+    $response->assertSee('summary_large_image', false);
 });
 
 it('renders the homepage when external profile services fail', function () {
@@ -34,4 +43,5 @@ it('renders the homepage when external profile services fail', function () {
     $response->assertSuccessful();
     $response->assertSee('Token Tosser');
     $response->assertSee('VIBE CODED');
+    $response->assertSee('og:title', false);
 });

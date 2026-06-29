@@ -9,15 +9,29 @@ use Illuminate\Support\Str;
 class ProfileDataService
 {
     /**
-     * @return array{cursor: ?array<string, mixed>}
+     * @return array{cursor: ?array<string, mixed>, fetched_at: ?\Illuminate\Support\Carbon}
      */
     public function get(): array
     {
         $cursorUsername = config('profile.cursor_username');
         $ttl = config('profile.cache_ttl');
 
+        $cached = Cache::remember("profile.cursor.{$cursorUsername}", $ttl, fn (): array => [
+            'cursor' => $this->fetchCursorProfile($cursorUsername),
+            'fetched_at' => now(),
+        ]);
+
+        $cursor = $cached['cursor'];
+
+        if ($cursor !== null) {
+            $cursor['stats']['longest_agent_duration'] = $this->formatDuration(
+                $cursor['stats']['longest_agent_seconds'] ?? null
+            );
+        }
+
         return [
-            'cursor' => Cache::remember("profile.cursor.{$cursorUsername}", $ttl, fn () => $this->fetchCursorProfile($cursorUsername)),
+            'cursor' => $cursor,
+            'fetched_at' => $cached['fetched_at'],
         ];
     }
 
@@ -111,5 +125,28 @@ class ProfileDataService
         preg_match_all('/\\\\"url\\\\":\\\\"([^\\\\"]*)\\\\"/', $matches[1], $urlMatches);
 
         return $urlMatches[1] ?? [];
+    }
+
+    private function formatDuration(?int $seconds): ?string
+    {
+        if ($seconds === null) {
+            return null;
+        }
+
+        if ($seconds < 60) {
+            return "{$seconds}s";
+        }
+
+        $minutes = intdiv($seconds, 60);
+        $remainingSeconds = $seconds % 60;
+
+        if ($minutes < 60) {
+            return $remainingSeconds > 0 ? "{$minutes}m {$remainingSeconds}s" : "{$minutes}m";
+        }
+
+        $hours = intdiv($minutes, 60);
+        $remainingMinutes = $minutes % 60;
+
+        return $remainingMinutes > 0 ? "{$hours}h {$remainingMinutes}m" : "{$hours}h";
     }
 }

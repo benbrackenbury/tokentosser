@@ -29,7 +29,7 @@ npm run build
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 
-php artisan tinker --execute 'file_put_contents(base_path("'"$OUTPUT_DIR"'/index.html"), view("welcome")->render());'
+php artisan tinker --execute 'file_put_contents(base_path("'"$OUTPUT_DIR"'/index.html"), view("welcome", app(\App\Services\ProfileDataService::class)->get())->render());'
 
 for asset in favicon.ico robots.txt tokentosser.gif; do
     if [[ -f "public/$asset" ]]; then

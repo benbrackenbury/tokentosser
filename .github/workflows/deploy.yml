@@ -1,14 +1,19 @@
 name: Deploy Laravel
+
 on:
   push:
-    branches: [ master ]
+    branches: [master]
+  workflow_dispatch:
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ secrets.VPS_HOST != '' && secrets.VPS_USER != '' && secrets.SSH_PRIVATE_KEY != '' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Deploy
-        uses: appleboy/ssh-action@master
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
